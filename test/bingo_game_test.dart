@@ -35,13 +35,18 @@ void main() {
     }
   });
 
-  test('marks matching numbers as they are drawn', () {
+  test('only marks matching numbers after they have been drawn', () {
     final game = BingoGame(random: Random(2));
     final firstCellNumber = game.card.first.label!;
+
+    expect(game.markCell(0), isFalse);
+    expect(game.markedIndexes, isNot(contains(0)));
 
     game.drawPool = [firstCellNumber];
 
     expect(game.drawNumber(), firstCellNumber);
+    expect(game.markedIndexes, isNot(contains(0)));
+    expect(game.markCell(0), isTrue);
     expect(game.markedIndexes, contains(0));
     expect(game.drawnNumbers, contains(firstCellNumber));
   });
@@ -56,7 +61,9 @@ void main() {
     game.drawPool = firstRowNumbers.reversed.toList();
 
     for (var index = 0; index < firstRowNumbers.length; index++) {
-      game.drawNumber();
+      final number = game.drawNumber();
+      final cellIndex = game.card.indexWhere((cell) => cell.label == number);
+      game.markCell(cellIndex);
     }
 
     expect(game.hasBingo, isTrue);

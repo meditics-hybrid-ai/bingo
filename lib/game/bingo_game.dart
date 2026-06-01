@@ -42,15 +42,37 @@ class BingoGame {
 
     final number = drawPool.removeLast();
     drawnNumbers.add(number);
+    return number;
+  }
 
-    for (var index = 0; index < card.length; index++) {
-      if (card[index].label == number) {
-        markedIndexes.add(index);
-      }
+  bool markCell(int index) {
+    if (index < 0 || index >= card.length || hasBingo) {
+      return false;
     }
 
+    final cell = card[index];
+    if (cell.isFreeSpace || cell.label == null) {
+      return false;
+    }
+
+    if (!drawnNumbers.contains(cell.label)) {
+      return false;
+    }
+
+    markedIndexes.add(index);
     hasBingo = _checkBingo();
-    return number;
+    return true;
+  }
+
+  bool canMarkCell(int index) {
+    if (index < 0 || index >= card.length) {
+      return false;
+    }
+
+    final label = card[index].label;
+    return label != null &&
+        drawnNumbers.contains(label) &&
+        !markedIndexes.contains(index);
   }
 
   List<BingoCell> _generateCard() {

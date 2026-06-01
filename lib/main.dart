@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'game/bingo_game.dart';
@@ -35,13 +37,70 @@ class BingoScreen extends StatefulWidget {
 
 class _BingoScreenState extends State<BingoScreen> {
   final BingoGame _game = BingoGame();
+  Timer? _drawTimer;
+  bool _isRunning = false;
 
-  void _drawNumber() {
-    setState(_game.drawNumber);
+  @override
+  void dispose() {
+    _drawTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startGame() {
+    if (_isRunning || !_game.canDraw) {
+      return;
+    }
+
+    setState(() {
+      _isRunning = true;
+      _game.drawNumber();
+    });
+
+    _drawTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) {
+        return;
+      }
+
+      if (!_game.canDraw) {
+        _stopDrawing();
+        return;
+      }
+
+      setState(_game.drawNumber);
+
+      if (!_game.canDraw) {
+        _stopDrawing();
+      }
+    });
+  }
+
+  void _stopDrawing() {
+    _drawTimer?.cancel();
+    _drawTimer = null;
+    if (mounted && _isRunning) {
+      setState(() {
+        _isRunning = false;
+      });
+    } else {
+      _isRunning = false;
+    }
+  }
+
+  void _markCell(int index) {
+    setState(() => _game.markCell(index));
+
+    if (_game.hasBingo) {
+      _stopDrawing();
+    }
   }
 
   void _newGame() {
-    setState(_game.reset);
+    _drawTimer?.cancel();
+    _drawTimer = null;
+    setState(() {
+      _isRunning = false;
+      _game.reset();
+    });
   }
 
   @override
@@ -68,7 +127,7 @@ class _BingoScreenState extends State<BingoScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _StatusPanel(game: _game),
+                      _StatusPanel(game: _game, isRunning: _isRunning),
                       const SizedBox(height: 16),
                       Center(
                         child: SizedBox(
@@ -80,14 +139,15 @@ class _BingoScreenState extends State<BingoScreen> {
                       Center(
                         child: SizedBox(
                           width: boardWidth,
-                          child: _BingoBoard(game: _game),
+                          child: _BingoBoard(game: _game, onCellTap: _markCell),
                         ),
                       ),
                       const SizedBox(height: 18),
                       _GameActions(
-                        canDraw: _game.canDraw,
+                        canStart: !_isRunning && _game.canDraw,
                         hasBingo: _game.hasBingo,
-                        onDraw: _drawNumber,
+                        isRunning: _isRunning,
+                        onStart: _startGame,
                         onNewGame: _newGame,
                       ),
                       const SizedBox(height: 14),
@@ -105,9 +165,10 @@ class _BingoScreenState extends State<BingoScreen> {
 }
 
 class _StatusPanel extends StatelessWidget {
-  const _StatusPanel({required this.game});
+  const _StatusPanel({required this.game, required this.isRunning});
 
   final BingoGame game;
+  final bool isRunning;
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +193,8 @@ class _StatusPanel extends StatelessWidget {
                   ? 'BINGO!'
                   : currentNumber == null
                   ? 'Ready to play'
+                  : isRunning
+                  ? 'Drawing every 5 seconds'
                   : 'Current number',
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
@@ -142,7 +205,7 @@ class _StatusPanel extends StatelessWidget {
               game.hasBingo
                   ? 'You completed a winning line.'
                   : currentNumber == null
-                  ? 'Tap Draw Number to begin.'
+                  ? 'Tap Start to begin.'
                   : _formatBingoNumber(currentNumber),
               style: textTheme.headlineSmall?.copyWith(
                 color: game.hasBingo
@@ -183,9 +246,10 @@ class _BingoHeader extends StatelessWidget {
 }
 
 class _BingoBoard extends StatelessWidget {
-  const _BingoBoard({required this.game});
+  const _BingoBoard({required this.game, required this.onCellTap});
 
   final BingoGame game;
+  final ValueChanged<int> onCellTap;
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +266,13 @@ class _BingoBoard extends StatelessWidget {
         itemBuilder: (context, index) {
           final cell = game.card[index];
           final isMarked = game.markedIndexes.contains(index);
-          return _BingoCellTile(cell: cell, isMarked: isMarked);
+          final canMark = game.canMarkCell(index);
+          return _BingoCellTile(
+            cell: cell,
+            isMarked: isMarked,
+            canMark: canMark,
+            onTap: () => onCellTap(index),
+          );
         },
       ),
     );
@@ -210,40 +280,59 @@ class _BingoBoard extends StatelessWidget {
 }
 
 class _BingoCellTile extends StatelessWidget {
-  const _BingoCellTile({required this.cell, required this.isMarked});
+  const _BingoCellTile({
+    required this.cell,
+    required this.isMarked,
+    required this.canMark,
+    required this.onTap,
+  });
 
   final BingoCell cell;
   final bool isMarked;
+  final bool canMark;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final color = isMarked ? const Color(0xFF1E6F5C) : Colors.white;
     final foreground = isMarked ? Colors.white : const Color(0xFF17201D);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      decoration: BoxDecoration(
-        color: color,
-        border: Border.all(color: const Color(0xFFB8C2B4)),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isMarked ? null : onTap,
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          if (!isMarked)
-            const BoxShadow(
-              color: Color(0x14000000),
-              blurRadius: 8,
-              offset: Offset(0, 2),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: color,
+            border: Border.all(
+              color: canMark
+                  ? const Color(0xFFE6A700)
+                  : const Color(0xFFB8C2B4),
+              width: canMark ? 2 : 1,
             ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          cell.isFreeSpace ? 'FREE' : '${cell.label}',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: foreground,
-            fontSize: cell.isFreeSpace ? 15 : null,
-            fontWeight: FontWeight.w900,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              if (!isMarked)
+                const BoxShadow(
+                  color: Color(0x14000000),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+            ],
           ),
-          textAlign: TextAlign.center,
+          child: Center(
+            child: Text(
+              cell.isFreeSpace ? 'FREE' : '${cell.label}',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: foreground,
+                fontSize: cell.isFreeSpace ? 15 : null,
+                fontWeight: FontWeight.w900,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ),
       ),
     );
@@ -252,15 +341,17 @@ class _BingoCellTile extends StatelessWidget {
 
 class _GameActions extends StatelessWidget {
   const _GameActions({
-    required this.canDraw,
+    required this.canStart,
     required this.hasBingo,
-    required this.onDraw,
+    required this.isRunning,
+    required this.onStart,
     required this.onNewGame,
   });
 
-  final bool canDraw;
+  final bool canStart;
   final bool hasBingo;
-  final VoidCallback onDraw;
+  final bool isRunning;
+  final VoidCallback onStart;
   final VoidCallback onNewGame;
 
   @override
@@ -269,9 +360,15 @@ class _GameActions extends StatelessWidget {
       children: [
         Expanded(
           child: FilledButton.icon(
-            onPressed: canDraw ? onDraw : null,
-            icon: const Icon(Icons.casino_outlined),
-            label: Text(hasBingo ? 'Game Complete' : 'Draw Number'),
+            onPressed: canStart ? onStart : null,
+            icon: Icon(isRunning ? Icons.hourglass_top : Icons.play_arrow),
+            label: Text(
+              hasBingo
+                  ? 'Game Complete'
+                  : isRunning
+                  ? 'Running'
+                  : 'Start',
+            ),
           ),
         ),
         const SizedBox(width: 10),
