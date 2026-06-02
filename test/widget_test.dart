@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:meditics_bingo/audio/bingo_announcer.dart';
 import 'package:meditics_bingo/main.dart';
 
 void main() {
   testWidgets('starts automatic bingo drawing', (tester) async {
-    await tester.pumpWidget(const MediticsBingoApp());
+    await tester.pumpWidget(
+      const MediticsBingoApp(announcer: SilentBingoAnnouncer()),
+    );
 
     expect(find.text('Meditics BINGO'), findsOneWidget);
     expect(find.text('Ready to play'), findsOneWidget);
@@ -22,7 +25,9 @@ void main() {
   });
 
   testWidgets('confirms refresh after game has started', (tester) async {
-    await tester.pumpWidget(const MediticsBingoApp());
+    await tester.pumpWidget(
+      const MediticsBingoApp(announcer: SilentBingoAnnouncer()),
+    );
 
     await tester.ensureVisible(find.text('Start'));
     await tester.tap(find.byIcon(Icons.play_arrow));
@@ -45,4 +50,44 @@ void main() {
     expect(find.text('Start a new game?'), findsNothing);
     expect(find.text('Running'), findsOneWidget);
   });
+
+  testWidgets('announces game start and first number', (tester) async {
+    final announcer = _RecordingBingoAnnouncer();
+
+    await tester.pumpWidget(MediticsBingoApp(announcer: announcer));
+
+    await tester.ensureVisible(find.text('Start'));
+    await tester.tap(find.byIcon(Icons.play_arrow));
+    await tester.pump();
+
+    expect(announcer.events.first, 'start');
+    expect(
+      announcer.events.where((event) => event.startsWith('number:')),
+      hasLength(1),
+    );
+  });
+}
+
+class _RecordingBingoAnnouncer implements BingoAnnouncer {
+  final List<String> events = [];
+
+  @override
+  Future<void> announceBingo() async {
+    events.add('bingo');
+  }
+
+  @override
+  Future<void> announceGameStart() async {
+    events.add('start');
+  }
+
+  @override
+  Future<void> announceNumber(int number) async {
+    events.add('number:$number');
+  }
+
+  @override
+  Future<void> stop() async {
+    events.add('stop');
+  }
 }

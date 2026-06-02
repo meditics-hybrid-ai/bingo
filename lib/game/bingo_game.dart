@@ -3,6 +3,16 @@ import 'dart:math';
 const int bingoBoardSize = 5;
 const int bingoFreeSpaceIndex = 12;
 
+String bingoLetterForNumber(int number) {
+  return switch (number) {
+    >= 1 && <= 15 => 'B',
+    >= 16 && <= 30 => 'I',
+    >= 31 && <= 45 => 'N',
+    >= 46 && <= 60 => 'G',
+    _ => 'O',
+  };
+}
+
 class BingoCell {
   const BingoCell({required this.label, required this.isFreeSpace});
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'audio/bingo_announcer.dart';
 import 'game/bingo_game.dart';
 
 void main() {
@@ -9,7 +10,9 @@ void main() {
 }
 
 class MediticsBingoApp extends StatelessWidget {
-  const MediticsBingoApp({super.key});
+  const MediticsBingoApp({super.key, this.announcer});
+
+  final BingoAnnouncer? announcer;
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +26,15 @@ class MediticsBingoApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const BingoScreen(),
+      home: BingoScreen(announcer: announcer),
     );
   }
 }
 
 class BingoScreen extends StatefulWidget {
-  const BingoScreen({super.key});
+  const BingoScreen({super.key, this.announcer});
+
+  final BingoAnnouncer? announcer;
 
   @override
   State<BingoScreen> createState() => _BingoScreenState();
@@ -37,12 +42,15 @@ class BingoScreen extends StatefulWidget {
 
 class _BingoScreenState extends State<BingoScreen> {
   final BingoGame _game = BingoGame();
+  late final BingoAnnouncer _announcer =
+      widget.announcer ?? TtsBingoAnnouncer();
   Timer? _drawTimer;
   bool _isRunning = false;
 
   @override
   void dispose() {
     _drawTimer?.cancel();
+    unawaited(_announcer.stop());
     super.dispose();
   }
 
@@ -51,10 +59,12 @@ class _BingoScreenState extends State<BingoScreen> {
       return;
     }
 
+    int? calledNumber;
     setState(() {
       _isRunning = true;
-      _game.drawNumber();
+      calledNumber = _game.drawNumber();
     });
+    _announceGameStart(calledNumber);
 
     _drawTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted) {
@@ -66,12 +76,21 @@ class _BingoScreenState extends State<BingoScreen> {
         return;
       }
 
-      setState(_game.drawNumber);
+      final calledNumber = _drawNumber();
+      _announceNumber(calledNumber);
 
       if (!_game.canDraw) {
         _stopDrawing();
       }
     });
+  }
+
+  int? _drawNumber() {
+    int? calledNumber;
+    setState(() {
+      calledNumber = _game.drawNumber();
+    });
+    return calledNumber;
   }
 
   void _stopDrawing() {
@@ -91,11 +110,35 @@ class _BingoScreenState extends State<BingoScreen> {
 
     if (_game.hasBingo) {
       _stopDrawing();
+      unawaited(_announcer.announceBingo());
     }
   }
 
+  void _announceGameStart(int? calledNumber) {
+    if (calledNumber == null) {
+      return;
+    }
+
+    unawaited(() async {
+      await _announcer.announceGameStart();
+      if (!mounted || !_game.drawnNumbers.contains(calledNumber)) {
+        return;
+      }
+      await _announcer.announceNumber(calledNumber);
+    }());
+  }
+
+  void _announceNumber(int? calledNumber) {
+    if (calledNumber == null) {
+      return;
+    }
+
+    unawaited(_announcer.announceNumber(calledNumber));
+  }
+
   Future<void> _requestNewGame() async {
-    final shouldConfirm = _isRunning || _game.hasBingo || _game.drawnNumbers.isNotEmpty;
+    final shouldConfirm =
+        _isRunning || _game.hasBingo || _game.drawnNumbers.isNotEmpty;
     if (!shouldConfirm) {
       _newGame();
       return;
@@ -133,6 +176,7 @@ class _BingoScreenState extends State<BingoScreen> {
   void _newGame() {
     _drawTimer?.cancel();
     _drawTimer = null;
+    unawaited(_announcer.stop());
     setState(() {
       _isRunning = false;
       _game.reset();
@@ -458,12 +502,6 @@ class _DrawHistory extends StatelessWidget {
 }
 
 String _formatBingoNumber(int number) {
-  final letter = switch (number) {
-    >= 1 && <= 15 => 'B',
-    >= 16 && <= 30 => 'I',
-    >= 31 && <= 45 => 'N',
-    >= 46 && <= 60 => 'G',
-    _ => 'O',
-  };
+  final letter = bingoLetterForNumber(number);
   return '$letter-$number';
 }

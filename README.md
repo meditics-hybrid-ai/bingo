@@ -26,6 +26,9 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Generate a randomized bingo card for each game.
 - Start the game with a single Start button.
 - Draw numbers locally from a randomized pool every 5 seconds after the game starts.
+- Announce the game start with audio.
+- Announce each called number with audio, such as `B 9`.
+- Announce the win when BINGO is achieved.
 - Require the player to manually tap matching numbers on the bingo card.
 - Prevent marking numbers that have not been drawn yet.
 - Detect valid bingo patterns.
@@ -39,12 +42,14 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 1. The player starts with a fresh randomized 5x5 bingo card.
 2. The center space is marked as `FREE`.
 3. The player taps `Start` to begin the game.
-4. The app draws the first number immediately, then continues drawing one number every 5 seconds.
-5. The player manually taps a card cell to mark it.
-6. A cell can only be marked if its number has already been drawn.
-7. The app checks rows, columns, and diagonals after each valid mark.
-8. The draw timer stops when the player completes BINGO.
-9. If the game has started or ended, tapping refresh asks for confirmation before starting a new game.
+4. The app announces that the game has started.
+5. The app draws the first number immediately, announces it, then continues drawing and announcing one number every 5 seconds.
+6. The player manually taps a card cell to mark it.
+7. A cell can only be marked if its number has already been drawn.
+8. The app checks rows, columns, and diagonals after each valid mark.
+9. The draw timer stops when the player completes BINGO.
+10. The app announces the BINGO win.
+11. If the game has started or ended, tapping refresh asks for confirmation before starting a new game.
 
 ## Non-Goals
 
@@ -79,6 +84,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Add card grid, drawn number display, Start button, refresh button, and win state. Done.
 - Add automatic 5-second number drawing after Start. Done.
 - Add refresh confirmation for started or completed games. Done.
+- Add audio announcements for game start, called numbers, and BINGO win. Done.
 - Add responsive layouts for phones and tablets.
 - Add simple animations and feedback for marking cells and winning.
 - Add sound and haptic feedback controls if desired.
