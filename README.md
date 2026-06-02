@@ -24,13 +24,27 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 ## Core Features
 
 - Generate a randomized bingo card for each game.
-- Draw numbers locally from a randomized pool.
-- Mark matching numbers on the bingo card.
+- Start the game with a single Start button.
+- Draw numbers locally from a randomized pool every 5 seconds after the game starts.
+- Require the player to manually tap matching numbers on the bingo card.
+- Prevent marking numbers that have not been drawn yet.
 - Detect valid bingo patterns.
 - Show win state when the player completes a valid pattern.
-- Start a new game at any time.
+- Ask for confirmation before refreshing a started or completed game.
 - Store simple local preferences, such as sound, vibration, and ad consent settings if needed.
 - Display ads in appropriate places, such as after completed games or from an optional rewarded placement.
+
+## Current Gameplay
+
+1. The player starts with a fresh randomized 5x5 bingo card.
+2. The center space is marked as `FREE`.
+3. The player taps `Start` to begin the game.
+4. The app draws the first number immediately, then continues drawing one number every 5 seconds.
+5. The player manually taps a card cell to mark it.
+6. A cell can only be marked if its number has already been drawn.
+7. The app checks rows, columns, and diagonals after each valid mark.
+8. The draw timer stops when the player completes BINGO.
+9. If the game has started or ended, tapping refresh asks for confirmation before starting a new game.
 
 ## Non-Goals
 
@@ -52,16 +66,19 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 
 ### Phase 2: Game Logic
 
-- Build the bingo card generator.
-- Build the number draw engine.
-- Track marked cells and drawn numbers.
-- Implement bingo pattern detection.
-- Add unit tests for card generation, number drawing, and win detection.
+- Build the bingo card generator. Done.
+- Build the number draw engine. Done.
+- Track marked cells and drawn numbers. Done.
+- Implement bingo pattern detection. Done.
+- Require manual marking only after a number has been drawn. Done.
+- Add unit tests for card generation, number drawing, manual marking, and win detection. Done.
 
 ### Phase 3: Gameplay UI
 
-- Design the main game screen.
-- Add card grid, drawn number display, draw button, reset button, and win state.
+- Design the main game screen. Done.
+- Add card grid, drawn number display, Start button, refresh button, and win state. Done.
+- Add automatic 5-second number drawing after Start. Done.
+- Add refresh confirmation for started or completed games. Done.
 - Add responsive layouts for phones and tablets.
 - Add simple animations and feedback for marking cells and winning.
 - Add sound and haptic feedback controls if desired.

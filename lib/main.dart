@@ -94,6 +94,42 @@ class _BingoScreenState extends State<BingoScreen> {
     }
   }
 
+  Future<void> _requestNewGame() async {
+    final shouldConfirm = _isRunning || _game.hasBingo || _game.drawnNumbers.isNotEmpty;
+    if (!shouldConfirm) {
+      _newGame();
+      return;
+    }
+
+    final shouldReset = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Start a new game?'),
+          content: const Text(
+            'Are you sure you want to start a new game? Your current progress will be lost.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('New game'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || shouldReset != true) {
+      return;
+    }
+
+    _newGame();
+  }
+
   void _newGame() {
     _drawTimer?.cancel();
     _drawTimer = null;
@@ -148,7 +184,9 @@ class _BingoScreenState extends State<BingoScreen> {
                         hasBingo: _game.hasBingo,
                         isRunning: _isRunning,
                         onStart: _startGame,
-                        onNewGame: _newGame,
+                        onNewGame: () {
+                          _requestNewGame();
+                        },
                       ),
                       const SizedBox(height: 14),
                       _DrawHistory(numbers: _game.drawnNumbers),
