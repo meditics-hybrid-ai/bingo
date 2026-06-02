@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'audio/bingo_announcer.dart';
 import 'game/bingo_game.dart';
 
+const String appLogoAsset = 'assets/images/meditics_bingo_logo.png';
+
 void main() {
   runApp(const MediticsBingoApp());
 }
@@ -190,6 +192,13 @@ class _BingoScreenState extends State<BingoScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7F2),
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.asset(appLogoAsset, fit: BoxFit.cover),
+          ),
+        ),
         title: const Text('Meditics BINGO'),
         centerTitle: true,
         backgroundColor: colorScheme.surface,
@@ -207,6 +216,8 @@ class _BingoScreenState extends State<BingoScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const _AppLogo(),
+                      const SizedBox(height: 14),
                       _StatusPanel(game: _game, isRunning: _isRunning),
                       const SizedBox(height: 16),
                       Center(
@@ -240,6 +251,37 @@ class _BingoScreenState extends State<BingoScreen> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _AppLogo extends StatelessWidget {
+  const _AppLogo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x26000000),
+              blurRadius: 16,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(
+            appLogoAsset,
+            width: 116,
+            height: 116,
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );
