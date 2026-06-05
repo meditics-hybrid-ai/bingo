@@ -31,6 +31,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Announce each called number with audio, such as `B 9`.
 - Announce the win when BINGO is achieved.
 - Display the Meditics BINGO logo in the app UI.
+- Use a vibrant arcade-style visual design inspired by the app logo.
 - Use generated Meditics BINGO launcher icons for Android and iOS.
 - Require the player to manually tap matching numbers on the bingo card.
 - Prevent marking numbers that have not been drawn yet.
@@ -87,6 +88,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Design the main game screen. Done.
 - Add card grid, drawn number display, Start button, refresh button, and win state. Done.
 - Add Meditics BINGO logo to the app UI. Done.
+- Add vibrant logo-inspired styling for the background, bingo board, number calls, actions, and recent draws. Done.
 - Add automatic 5-second number drawing after Start. Done.
 - Add refresh confirmation for started or completed games. Done.
 - Add audio announcements for game start, called numbers, and BINGO win. Done.
