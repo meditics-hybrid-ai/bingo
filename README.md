@@ -26,7 +26,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 
 - Generate a randomized bingo card for each game.
 - Start the game with a single Start button.
-- Draw numbers locally from a randomized pool every 5 seconds after the game starts.
+- Draw numbers locally from a randomized pool every 8 seconds after the game starts.
 - Announce the game start with audio.
 - Announce each called number with audio, such as `B 9`.
 - Announce the win when BINGO is achieved.
@@ -43,6 +43,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Preload and show a Google AdMob test interstitial after BINGO is achieved.
 - Hide the large logo after the game starts so gameplay gets more space.
 - Hide the pre-game call/status panel so the Start button is visible sooner.
+- Highlight drawn-but-unmarked card numbers with a bright gold/orange state.
 - Store simple local preferences, such as sound, vibration, and ad consent settings if needed.
 - Display ads in appropriate places, such as after completed games or from an optional rewarded placement.
 
@@ -73,7 +74,7 @@ Before release:
 3. The player taps `Start` to begin the game.
 4. Before the game starts, the large logo is shown and the call/status panel is hidden to keep the Start button easier to reach.
 5. The app announces that the game has started.
-6. The app draws the first number immediately, announces it, then continues drawing and announcing one number every 5 seconds.
+6. The app draws the first number immediately, announces it, then continues drawing and announcing one number every 8 seconds.
 7. The large logo is hidden and the call/status panel appears after the game starts.
 8. The player manually taps a card cell to mark it.
 9. A cell can only be marked if its number has already been drawn.
@@ -118,7 +119,8 @@ Before release:
 - Add vibrant logo-inspired styling for the background, bingo board, number calls, actions, and recent draws. Done.
 - Hide the large logo after game start to improve gameplay space. Done.
 - Hide the pre-game call/status panel so the Start button is visible sooner. Done.
-- Add automatic 5-second number drawing after Start. Done.
+- Add automatic 8-second number drawing after Start. Done.
+- Add a more visible drawn-but-unmarked tile state. Done.
 - Add refresh confirmation for started or completed games. Done.
 - Add audio announcements for game start, called numbers, and BINGO win. Done.
 - Add responsive layouts for phones and tablets.

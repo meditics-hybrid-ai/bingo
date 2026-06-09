@@ -95,7 +95,7 @@ class _BingoScreenState extends State<BingoScreen> {
     });
     _announceGameStart(calledNumber);
 
-    _drawTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _drawTimer = Timer.periodic(const Duration(seconds: 8), (_) {
       if (!mounted) {
         return;
       }
@@ -491,7 +491,7 @@ class _StatusPanel extends StatelessWidget {
         : currentNumber == null
         ? 'Ready to play'
         : isRunning
-        ? 'Drawing every 5 seconds'
+        ? 'Drawing every 8 seconds'
         : 'Current number';
 
     return DecoratedBox(
@@ -737,7 +737,16 @@ class _BingoCellTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final columnColor = _bingoColumnColors[index % bingoBoardSize];
-    final foreground = isMarked ? Colors.white : const Color(0xFF17201D);
+    final foreground = isMarked
+        ? Colors.white
+        : canMark
+        ? const Color(0xFF4A1700)
+        : const Color(0xFF17201D);
+    final tileGradientColors = isMarked
+        ? [columnColor.withValues(alpha: 0.95), columnColor]
+        : canMark
+        ? const [Color(0xFFFFF176), Color(0xFFFFB300), Color(0xFFFF6D00)]
+        : const [Color(0xFFFFFDF2), Color(0xFFFFE7A3)];
 
     return Material(
       color: Colors.transparent,
@@ -750,26 +759,24 @@ class _BingoCellTile extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: isMarked
-                  ? [columnColor.withValues(alpha: 0.95), columnColor]
-                  : const [Color(0xFFFFFDF2), Color(0xFFFFE7A3)],
+              colors: tileGradientColors,
             ),
             border: Border.all(
               color: canMark
-                  ? const Color(0xFFFFF176)
+                  ? Colors.white
                   : isMarked
                   ? Colors.white
                   : const Color(0xFFFFB300),
-              width: canMark || isMarked ? 3 : 1.5,
+              width: canMark ? 4 : isMarked ? 3 : 1.5,
             ),
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
                 color: canMark
-                    ? const Color(0x99FFD54F)
+                    ? const Color(0xCCFFEA00)
                     : const Color(0x33000000),
-                blurRadius: canMark ? 12 : 8,
-                offset: const Offset(0, 3),
+                blurRadius: canMark ? 18 : 8,
+                offset: Offset(0, canMark ? 5 : 3),
               ),
             ],
           ),
@@ -780,7 +787,7 @@ class _BingoCellTile extends StatelessWidget {
                 color: foreground,
                 fontSize: cell.isFreeSpace ? 15 : null,
                 fontWeight: FontWeight.w900,
-                shadows: isMarked
+                shadows: isMarked || canMark
                     ? const [
                         Shadow(
                           color: Color(0x88000000),

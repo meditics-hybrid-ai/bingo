@@ -25,7 +25,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.play_arrow));
     await tester.pump();
 
-    expect(find.text('Drawing every 5 seconds'), findsOneWidget);
+    expect(find.text('Drawing every 8 seconds'), findsOneWidget);
     expect(find.text('Running'), findsOneWidget);
     expect(find.text('No numbers drawn yet.'), findsNothing);
   });
