@@ -39,7 +39,10 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Show win state when the player completes a valid pattern.
 - Ask for confirmation before refreshing a started or completed game.
 - Show Google AdMob test banner ads during development.
+- Keep the banner ad fixed in a constrained bottom strip.
 - Preload and show a Google AdMob test interstitial after BINGO is achieved.
+- Hide the large logo after the game starts so gameplay gets more space.
+- Hide the pre-game call/status panel so the Start button is visible sooner.
 - Store simple local preferences, such as sound, vibration, and ad consent settings if needed.
 - Display ads in appropriate places, such as after completed games or from an optional rewarded placement.
 
@@ -68,14 +71,16 @@ Before release:
 1. The player starts with a fresh randomized 5x5 bingo card.
 2. The center space is marked as `FREE`.
 3. The player taps `Start` to begin the game.
-4. The app announces that the game has started.
-5. The app draws the first number immediately, announces it, then continues drawing and announcing one number every 5 seconds.
-6. The player manually taps a card cell to mark it.
-7. A cell can only be marked if its number has already been drawn.
-8. The app checks rows, columns, and diagonals after each valid mark.
-9. The draw timer stops when the player completes BINGO.
-10. The app announces the BINGO win.
-11. If the game has started or ended, tapping refresh asks for confirmation before starting a new game.
+4. Before the game starts, the large logo is shown and the call/status panel is hidden to keep the Start button easier to reach.
+5. The app announces that the game has started.
+6. The app draws the first number immediately, announces it, then continues drawing and announcing one number every 5 seconds.
+7. The large logo is hidden and the call/status panel appears after the game starts.
+8. The player manually taps a card cell to mark it.
+9. A cell can only be marked if its number has already been drawn.
+10. The app checks rows, columns, and diagonals after each valid mark.
+11. The draw timer stops when the player completes BINGO.
+12. The app announces the BINGO win.
+13. If the game has started or ended, tapping refresh asks for confirmation before starting a new game.
 
 ## Non-Goals
 
@@ -111,6 +116,8 @@ Before release:
 - Add card grid, drawn number display, Start button, refresh button, and win state. Done.
 - Add Meditics BINGO logo to the app UI. Done.
 - Add vibrant logo-inspired styling for the background, bingo board, number calls, actions, and recent draws. Done.
+- Hide the large logo after game start to improve gameplay space. Done.
+- Hide the pre-game call/status panel so the Start button is visible sooner. Done.
 - Add automatic 5-second number drawing after Start. Done.
 - Add refresh confirmation for started or completed games. Done.
 - Add audio announcements for game start, called numbers, and BINGO win. Done.
@@ -128,6 +135,7 @@ Before release:
 
 - Integrate Google AdMob mobile ads SDK. Done.
 - Choose ad placements that do not interrupt active gameplay. Done.
+- Keep the banner ad fixed in a constrained bottom strip. Done.
 - Add test ads during development. Done.
 - Add production ad unit IDs through environment or build configuration.
 - Validate Google Play and Apple App Store policy requirements for ad disclosure and tracking permissions.

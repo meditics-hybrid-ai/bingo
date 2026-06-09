@@ -17,7 +17,7 @@ void main() {
     );
 
     expect(find.text('Meditics BINGO'), findsOneWidget);
-    expect(find.text('Ready to play'), findsOneWidget);
+    expect(find.text('Ready to play'), findsNothing);
     expect(find.text('Start'), findsOneWidget);
     expect(find.text('FREE'), findsOneWidget);
 

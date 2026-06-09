@@ -255,10 +255,14 @@ class _BingoScreenState extends State<BingoScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const _AppLogo(),
-                          const SizedBox(height: 14),
-                          _StatusPanel(game: _game, isRunning: _isRunning),
-                          const SizedBox(height: 16),
+                          if (_game.drawnNumbers.isEmpty && !_game.hasBingo)
+                            const _AppLogo(),
+                          if (_game.drawnNumbers.isEmpty && !_game.hasBingo)
+                            const SizedBox(height: 14),
+                          if (_game.drawnNumbers.isNotEmpty || _game.hasBingo)
+                            _StatusPanel(game: _game, isRunning: _isRunning),
+                          if (_game.drawnNumbers.isNotEmpty || _game.hasBingo)
+                            const SizedBox(height: 16),
                           Center(
                             child: SizedBox(
                               width: boardWidth,
@@ -286,8 +290,6 @@ class _BingoScreenState extends State<BingoScreen> {
                             },
                           ),
                           const SizedBox(height: 14),
-                          _AdBanner(adsService: _adsService),
-                          if (_adsService.isEnabled) const SizedBox(height: 14),
                           _DrawHistory(numbers: _game.drawnNumbers),
                         ],
                       ),
@@ -298,6 +300,43 @@ class _BingoScreenState extends State<BingoScreen> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: _BottomAdBar(adsService: _adsService),
+    );
+  }
+}
+
+class _BottomAdBar extends StatelessWidget {
+  const _BottomAdBar({required this.adsService});
+
+  static const double _height = 74;
+
+  final AdsService adsService;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!adsService.isEnabled) {
+      return const SizedBox.shrink();
+    }
+
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF061044), Color(0xFF0B1D66)],
+        ),
+        border: Border(top: BorderSide(color: Color(0xFFFFC400), width: 2)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: _height,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+            child: Center(child: _AdBanner(adsService: adsService)),
+          ),
+        ),
       ),
     );
   }
@@ -356,27 +395,25 @@ class _AdBannerState extends State<_AdBanner> {
       return const SizedBox.shrink();
     }
 
-    return Center(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: const Color(0xEFFFFFFF),
-          border: Border.all(color: const Color(0xFFFFC400), width: 2),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x44000000),
-              blurRadius: 12,
-              offset: Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: SizedBox(
-            width: bannerAd.size.width.toDouble(),
-            height: bannerAd.size.height.toDouble(),
-            child: AdWidget(ad: bannerAd),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xEFFFFFFF),
+        border: Border.all(color: const Color(0xFFFFC400), width: 2),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x44000000),
+            blurRadius: 12,
+            offset: Offset(0, 5),
           ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: SizedBox(
+          width: bannerAd.size.width.toDouble(),
+          height: bannerAd.size.height.toDouble(),
+          child: AdWidget(ad: bannerAd),
         ),
       ),
     );
