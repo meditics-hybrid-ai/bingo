@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ads/admob_service.dart';
 import 'audio/bingo_announcer.dart';
 import 'game/bingo_game.dart';
 
@@ -19,9 +21,10 @@ void main() {
 }
 
 class MediticsBingoApp extends StatelessWidget {
-  const MediticsBingoApp({super.key, this.announcer});
+  const MediticsBingoApp({super.key, this.announcer, this.adsService});
 
   final BingoAnnouncer? announcer;
+  final AdsService? adsService;
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +39,16 @@ class MediticsBingoApp extends StatelessWidget {
         fontFamily: 'Arial',
         useMaterial3: true,
       ),
-      home: BingoScreen(announcer: announcer),
+      home: BingoScreen(announcer: announcer, adsService: adsService),
     );
   }
 }
 
 class BingoScreen extends StatefulWidget {
-  const BingoScreen({super.key, this.announcer});
+  const BingoScreen({super.key, this.announcer, this.adsService});
 
   final BingoAnnouncer? announcer;
+  final AdsService? adsService;
 
   @override
   State<BingoScreen> createState() => _BingoScreenState();
@@ -54,13 +58,28 @@ class _BingoScreenState extends State<BingoScreen> {
   final BingoGame _game = BingoGame();
   late final BingoAnnouncer _announcer =
       widget.announcer ?? TtsBingoAnnouncer();
+  late final AdsService _adsService = widget.adsService ?? AdMobAdsService();
   Timer? _drawTimer;
   bool _isRunning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(
+      _adsService.initialize().then((_) {
+        if (!mounted) {
+          return;
+        }
+        _adsService.loadGameOverInterstitial();
+      }),
+    );
+  }
 
   @override
   void dispose() {
     _drawTimer?.cancel();
     unawaited(_announcer.stop());
+    _adsService.dispose();
     super.dispose();
   }
 
@@ -121,6 +140,7 @@ class _BingoScreenState extends State<BingoScreen> {
     if (_game.hasBingo) {
       _stopDrawing();
       unawaited(_announcer.announceBingo());
+      _adsService.showGameOverInterstitial();
     }
   }
 
@@ -266,6 +286,8 @@ class _BingoScreenState extends State<BingoScreen> {
                             },
                           ),
                           const SizedBox(height: 14),
+                          _AdBanner(adsService: _adsService),
+                          if (_adsService.isEnabled) const SizedBox(height: 14),
                           _DrawHistory(numbers: _game.drawnNumbers),
                         ],
                       ),
@@ -276,6 +298,86 @@ class _BingoScreenState extends State<BingoScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AdBanner extends StatefulWidget {
+  const _AdBanner({required this.adsService});
+
+  final AdsService adsService;
+
+  @override
+  State<_AdBanner> createState() => _AdBannerState();
+}
+
+class _AdBannerState extends State<_AdBanner> {
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.adsService.isEnabled) {
+      return;
+    }
+
+    _bannerAd = widget.adsService.createBannerAd(
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          if (mounted) {
+            setState(() => _isLoaded = true);
+          }
+        },
+        onAdFailedToLoad: (ad, _) {
+          ad.dispose();
+          if (mounted) {
+            setState(() {
+              _bannerAd = null;
+              _isLoaded = false;
+            });
+          }
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bannerAd = _bannerAd;
+    if (!widget.adsService.isEnabled || bannerAd == null || !_isLoaded) {
+      return const SizedBox.shrink();
+    }
+
+    return Center(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: const Color(0xEFFFFFFF),
+          border: Border.all(color: const Color(0xFFFFC400), width: 2),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x44000000),
+              blurRadius: 12,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            width: bannerAd.size.width.toDouble(),
+            height: bannerAd.size.height.toDouble(),
+            child: AdWidget(ad: bannerAd),
+          ),
+        ),
       ),
     );
   }

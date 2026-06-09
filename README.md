@@ -10,7 +10,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Game mode: Single player
 - Backend: None
 - Remote database: None
-- Monetization: Ads
+- Monetization: Google AdMob
 - Distribution: Google Play Store and Apple App Store
 - Logo asset: `assets/images/meditics_bingo_logo.png`
 
@@ -38,8 +38,30 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Detect valid bingo patterns.
 - Show win state when the player completes a valid pattern.
 - Ask for confirmation before refreshing a started or completed game.
+- Show Google AdMob test banner ads during development.
+- Preload and show a Google AdMob test interstitial after BINGO is achieved.
 - Store simple local preferences, such as sound, vibration, and ad consent settings if needed.
 - Display ads in appropriate places, such as after completed games or from an optional rewarded placement.
+
+## Ads
+
+The app uses Google AdMob through the official `google_mobile_ads` Flutter plugin.
+
+Current development setup:
+
+- Android AdMob test app ID: `ca-app-pub-3940256099942544~3347511713`
+- iOS AdMob test app ID: `ca-app-pub-3940256099942544~1458002511`
+- Banner ads use Google test ad unit IDs.
+- Game-over interstitial ads use Google test ad unit IDs.
+- Widget tests inject a no-op ads service so tests do not load platform ads.
+
+Before release:
+
+- Replace all test app IDs and ad unit IDs with production AdMob IDs.
+- Configure app-ads.txt.
+- Complete privacy disclosures for Google Play and Apple App Store.
+- Configure consent handling if required by target markets.
+- Keep ad placement non-disruptive and avoid interrupting active gameplay.
 
 ## Current Gameplay
 
@@ -104,9 +126,9 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 
 ### Phase 5: Ads
 
-- Integrate a mobile ads SDK.
-- Choose ad placements that do not interrupt active gameplay.
-- Add test ads during development.
+- Integrate Google AdMob mobile ads SDK. Done.
+- Choose ad placements that do not interrupt active gameplay. Done.
+- Add test ads during development. Done.
 - Add production ad unit IDs through environment or build configuration.
 - Validate Google Play and Apple App Store policy requirements for ad disclosure and tracking permissions.
 

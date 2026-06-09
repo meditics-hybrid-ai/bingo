@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:meditics_bingo/ads/admob_service.dart';
 import 'package:meditics_bingo/audio/bingo_announcer.dart';
 import 'package:meditics_bingo/main.dart';
+
+const _noOpAdsService = NoOpAdsService();
 
 void main() {
   testWidgets('starts automatic bingo drawing', (tester) async {
     await tester.pumpWidget(
-      const MediticsBingoApp(announcer: SilentBingoAnnouncer()),
+      const MediticsBingoApp(
+        announcer: SilentBingoAnnouncer(),
+        adsService: _noOpAdsService,
+      ),
     );
 
     expect(find.text('Meditics BINGO'), findsOneWidget);
@@ -26,7 +32,10 @@ void main() {
 
   testWidgets('confirms refresh after game has started', (tester) async {
     await tester.pumpWidget(
-      const MediticsBingoApp(announcer: SilentBingoAnnouncer()),
+      const MediticsBingoApp(
+        announcer: SilentBingoAnnouncer(),
+        adsService: _noOpAdsService,
+      ),
     );
 
     await tester.ensureVisible(find.text('Start'));
@@ -54,7 +63,9 @@ void main() {
   testWidgets('announces game start and first number', (tester) async {
     final announcer = _RecordingBingoAnnouncer();
 
-    await tester.pumpWidget(MediticsBingoApp(announcer: announcer));
+    await tester.pumpWidget(
+      MediticsBingoApp(announcer: announcer, adsService: _noOpAdsService),
+    );
 
     await tester.ensureVisible(find.text('Start'));
     await tester.tap(find.byIcon(Icons.play_arrow));
