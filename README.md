@@ -53,15 +53,26 @@ The app uses Google AdMob through the official `google_mobile_ads` Flutter plugi
 
 Current development setup:
 
+- The app automatically uses test ads in debug/profile builds and production ad placeholders in release builds.
 - Android AdMob test app ID: `ca-app-pub-3940256099942544~3347511713`
 - iOS AdMob test app ID: `ca-app-pub-3940256099942544~1458002511`
+- Android production app ID placeholder: `ca-app-pub-0000000000000000~0000000000`
+- iOS production app ID placeholder: `ca-app-pub-0000000000000000~0000000000`
 - Banner ads use Google test ad unit IDs.
 - Game-over interstitial ads use Google test ad unit IDs.
+- Production banner and interstitial ad unit IDs currently use placeholders.
 - Widget tests inject a no-op ads service so tests do not load platform ads.
+
+Ad mode defaults:
+
+- Debug/profile builds: Google AdMob test ads.
+- Release builds: production placeholders until real AdMob IDs are available.
+- Optional override: pass `--dart-define=ADMOB_FORCE_TEST_ADS=true` to force test ad unit IDs.
+- Optional override: pass `--dart-define=ADMOB_FORCE_PRODUCTION_ADS=true` to force production ad unit placeholders.
 
 Before release:
 
-- Replace all test app IDs and ad unit IDs with production AdMob IDs.
+- Replace all production app ID and ad unit ID placeholders with real AdMob IDs.
 - Configure app-ads.txt.
 - Complete privacy disclosures for Google Play and Apple App Store.
 - Configure consent handling if required by target markets.
@@ -138,6 +149,7 @@ Before release:
 - Integrate Google AdMob mobile ads SDK. Done.
 - Choose ad placements that do not interrupt active gameplay. Done.
 - Keep the banner ad fixed in a constrained bottom strip. Done.
+- Automatically select test ads for non-release builds and production placeholders for release builds. Done.
 - Add test ads during development. Done.
 - Add production ad unit IDs through environment or build configuration.
 - Validate Google Play and Apple App Store policy requirements for ad disclosure and tracking permissions.

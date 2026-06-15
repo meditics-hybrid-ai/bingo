@@ -12,19 +12,45 @@ abstract class AdsService {
 }
 
 class AdMobAdsService implements AdsService {
-  static const String _androidBannerAdUnitId =
+  static const bool _forceTestAds = bool.fromEnvironment(
+    'ADMOB_FORCE_TEST_ADS',
+  );
+  static const bool _forceProductionAds = bool.fromEnvironment(
+    'ADMOB_FORCE_PRODUCTION_ADS',
+  );
+
+  static const String _androidTestBannerAdUnitId =
       'ca-app-pub-3940256099942544/6300978111';
-  static const String _iosBannerAdUnitId =
+  static const String _iosTestBannerAdUnitId =
       'ca-app-pub-3940256099942544/2934735716';
-  static const String _androidInterstitialAdUnitId =
+  static const String _androidTestInterstitialAdUnitId =
       'ca-app-pub-3940256099942544/1033173712';
-  static const String _iosInterstitialAdUnitId =
+  static const String _iosTestInterstitialAdUnitId =
       'ca-app-pub-3940256099942544/4411468910';
+
+  static const String _androidProductionBannerAdUnitId =
+      'ca-app-pub-0000000000000000/0000000000';
+  static const String _iosProductionBannerAdUnitId =
+      'ca-app-pub-0000000000000000/0000000000';
+  static const String _androidProductionInterstitialAdUnitId =
+      'ca-app-pub-0000000000000000/0000000000';
+  static const String _iosProductionInterstitialAdUnitId =
+      'ca-app-pub-0000000000000000/0000000000';
 
   InterstitialAd? _gameOverInterstitial;
 
   @override
   bool get isEnabled => !kIsWeb;
+
+  bool get _useTestAds {
+    if (_forceTestAds) {
+      return true;
+    }
+    if (_forceProductionAds) {
+      return false;
+    }
+    return !kReleaseMode;
+  }
 
   @override
   Future<void> initialize() {
@@ -94,15 +120,27 @@ class AdMobAdsService implements AdsService {
   }
 
   String get _bannerAdUnitId {
+    if (_useTestAds) {
+      return defaultTargetPlatform == TargetPlatform.iOS
+          ? _iosTestBannerAdUnitId
+          : _androidTestBannerAdUnitId;
+    }
+
     return defaultTargetPlatform == TargetPlatform.iOS
-        ? _iosBannerAdUnitId
-        : _androidBannerAdUnitId;
+        ? _iosProductionBannerAdUnitId
+        : _androidProductionBannerAdUnitId;
   }
 
   String get _interstitialAdUnitId {
+    if (_useTestAds) {
+      return defaultTargetPlatform == TargetPlatform.iOS
+          ? _iosTestInterstitialAdUnitId
+          : _androidTestInterstitialAdUnitId;
+    }
+
     return defaultTargetPlatform == TargetPlatform.iOS
-        ? _iosInterstitialAdUnitId
-        : _androidInterstitialAdUnitId;
+        ? _iosProductionInterstitialAdUnitId
+        : _androidProductionInterstitialAdUnitId;
   }
 }
 
