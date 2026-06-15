@@ -17,6 +17,7 @@ const List<Color> _bingoColumnColors = [
 ];
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MediticsBingoApp());
 }
 
@@ -65,14 +66,20 @@ class _BingoScreenState extends State<BingoScreen> {
   @override
   void initState() {
     super.initState();
-    unawaited(
-      _adsService.initialize().then((_) {
-        if (!mounted) {
-          return;
-        }
-        _adsService.loadGameOverInterstitial();
-      }),
-    );
+    unawaited(_initializeAds());
+  }
+
+  Future<void> _initializeAds() async {
+    try {
+      await _adsService.initialize();
+      if (!mounted) {
+        return;
+      }
+      _adsService.loadGameOverInterstitial();
+    } catch (error, stackTrace) {
+      debugPrint('Ad initialization failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   @override
@@ -362,24 +369,29 @@ class _AdBannerState extends State<_AdBanner> {
       return;
     }
 
-    _bannerAd = widget.adsService.createBannerAd(
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          if (mounted) {
-            setState(() => _isLoaded = true);
-          }
-        },
-        onAdFailedToLoad: (ad, _) {
-          ad.dispose();
-          if (mounted) {
-            setState(() {
-              _bannerAd = null;
-              _isLoaded = false;
-            });
-          }
-        },
-      ),
-    )..load();
+    try {
+      _bannerAd = widget.adsService.createBannerAd(
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted) {
+              setState(() => _isLoaded = true);
+            }
+          },
+          onAdFailedToLoad: (ad, _) {
+            ad.dispose();
+            if (mounted) {
+              setState(() {
+                _bannerAd = null;
+                _isLoaded = false;
+              });
+            }
+          },
+        ),
+      )..load();
+    } catch (error, stackTrace) {
+      debugPrint('Banner ad load failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   @override
@@ -767,7 +779,11 @@ class _BingoCellTile extends StatelessWidget {
                   : isMarked
                   ? Colors.white
                   : const Color(0xFFFFB300),
-              width: canMark ? 4 : isMarked ? 3 : 1.5,
+              width: canMark
+                  ? 4
+                  : isMarked
+                  ? 3
+                  : 1.5,
             ),
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
