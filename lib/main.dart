@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'ads/admob_service.dart';
 import 'audio/bingo_announcer.dart';
+import 'config/app_update_checker.dart';
 import 'game/bingo_game.dart';
 
 const String appLogoAsset = 'assets/images/meditics_bingo_logo.png';
@@ -22,10 +24,16 @@ void main() {
 }
 
 class MediticsBingoApp extends StatelessWidget {
-  const MediticsBingoApp({super.key, this.announcer, this.adsService});
+  const MediticsBingoApp({
+    super.key,
+    this.announcer,
+    this.adsService,
+    this.updateChecker,
+  });
 
   final BingoAnnouncer? announcer;
   final AdsService? adsService;
+  final AppUpdateChecker? updateChecker;
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +48,26 @@ class MediticsBingoApp extends StatelessWidget {
         fontFamily: 'Arial',
         useMaterial3: true,
       ),
-      home: BingoScreen(announcer: announcer, adsService: adsService),
+      home: BingoScreen(
+        announcer: announcer,
+        adsService: adsService,
+        updateChecker: updateChecker,
+      ),
     );
   }
 }
 
 class BingoScreen extends StatefulWidget {
-  const BingoScreen({super.key, this.announcer, this.adsService});
+  const BingoScreen({
+    super.key,
+    this.announcer,
+    this.adsService,
+    this.updateChecker,
+  });
 
   final BingoAnnouncer? announcer;
   final AdsService? adsService;
+  final AppUpdateChecker? updateChecker;
 
   @override
   State<BingoScreen> createState() => _BingoScreenState();
@@ -60,6 +78,8 @@ class _BingoScreenState extends State<BingoScreen> {
   late final BingoAnnouncer _announcer =
       widget.announcer ?? TtsBingoAnnouncer();
   late final AdsService _adsService = widget.adsService ?? AdMobAdsService();
+  late final AppUpdateChecker _updateChecker =
+      widget.updateChecker ?? const RemoteAppUpdateChecker();
   Timer? _drawTimer;
   bool _isRunning = false;
 
@@ -67,6 +87,65 @@ class _BingoScreenState extends State<BingoScreen> {
   void initState() {
     super.initState();
     unawaited(_initializeAds());
+    unawaited(_checkForAppUpdate());
+  }
+
+  Future<void> _checkForAppUpdate() async {
+    final updateStatus = await _updateChecker.checkForUpdate();
+    if (!mounted || !updateStatus.needsUpdate) {
+      return;
+    }
+
+    await _showAppUpdateDialog(updateStatus);
+  }
+
+  Future<void> _showAppUpdateDialog(AppUpdateStatus updateStatus) async {
+    final shouldUpdate = await showDialog<bool>(
+      context: context,
+      barrierDismissible: !updateStatus.isRequired,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            updateStatus.isRequired ? 'Update required' : 'Update available',
+          ),
+          content: Text(
+            [
+              updateStatus.message,
+              if (updateStatus.latestVersion != null)
+                'Latest version: ${updateStatus.latestVersion}.',
+            ].join('\n\n'),
+          ),
+          actions: [
+            if (!updateStatus.isRequired)
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Continue playing'),
+              ),
+            if (updateStatus.updateUrl != null)
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Update'),
+              )
+            else
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('OK'),
+              ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || shouldUpdate != true || updateStatus.updateUrl == null) {
+      return;
+    }
+
+    final updateUri = Uri.tryParse(updateStatus.updateUrl!);
+    if (updateUri == null) {
+      return;
+    }
+
+    await launchUrl(updateUri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _initializeAds() async {

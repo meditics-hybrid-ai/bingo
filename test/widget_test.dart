@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:meditics_bingo/ads/admob_service.dart';
 import 'package:meditics_bingo/audio/bingo_announcer.dart';
+import 'package:meditics_bingo/config/app_update_checker.dart';
 import 'package:meditics_bingo/main.dart';
 
 const _noOpAdsService = NoOpAdsService();
+const _noOpUpdateChecker = _NoOpUpdateChecker();
 
 void main() {
   testWidgets('starts automatic bingo drawing', (tester) async {
@@ -13,6 +15,7 @@ void main() {
       const MediticsBingoApp(
         announcer: SilentBingoAnnouncer(),
         adsService: _noOpAdsService,
+        updateChecker: _noOpUpdateChecker,
       ),
     );
 
@@ -35,6 +38,7 @@ void main() {
       const MediticsBingoApp(
         announcer: SilentBingoAnnouncer(),
         adsService: _noOpAdsService,
+        updateChecker: _noOpUpdateChecker,
       ),
     );
 
@@ -64,7 +68,11 @@ void main() {
     final announcer = _RecordingBingoAnnouncer();
 
     await tester.pumpWidget(
-      MediticsBingoApp(announcer: announcer, adsService: _noOpAdsService),
+      MediticsBingoApp(
+        announcer: announcer,
+        adsService: _noOpAdsService,
+        updateChecker: _noOpUpdateChecker,
+      ),
     );
 
     await tester.ensureVisible(find.text('Start'));
@@ -76,6 +84,29 @@ void main() {
       announcer.events.where((event) => event.startsWith('number:')),
       hasLength(1),
     );
+  });
+
+  testWidgets('shows update dialog when remote config has newer version', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediticsBingoApp(
+        announcer: SilentBingoAnnouncer(),
+        adsService: _noOpAdsService,
+        updateChecker: _AvailableUpdateChecker(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update available'), findsOneWidget);
+    expect(find.text('Continue playing'), findsOneWidget);
+
+    await tester.tap(find.text('Continue playing'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update available'), findsNothing);
+    expect(find.text('Start'), findsOneWidget);
   });
 }
 
@@ -100,5 +131,28 @@ class _RecordingBingoAnnouncer implements BingoAnnouncer {
   @override
   Future<void> stop() async {
     events.add('stop');
+  }
+}
+
+class _NoOpUpdateChecker implements AppUpdateChecker {
+  const _NoOpUpdateChecker();
+
+  @override
+  Future<AppUpdateStatus> checkForUpdate() async {
+    return AppUpdateStatus.upToDate();
+  }
+}
+
+class _AvailableUpdateChecker implements AppUpdateChecker {
+  const _AvailableUpdateChecker();
+
+  @override
+  Future<AppUpdateStatus> checkForUpdate() async {
+    return const AppUpdateStatus(
+      needsUpdate: true,
+      isRequired: false,
+      latestVersion: '1.1.0',
+      message: 'A newer version of Meditics BINGO is available.',
+    );
   }
 }
