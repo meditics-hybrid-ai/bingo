@@ -108,6 +108,22 @@ void main() {
     expect(find.text('Update available'), findsNothing);
     expect(find.text('Start'), findsOneWidget);
   });
+
+  testWidgets('uses softer title for required update dialog', (tester) async {
+    await tester.pumpWidget(
+      const MediticsBingoApp(
+        announcer: SilentBingoAnnouncer(),
+        adsService: _noOpAdsService,
+        updateChecker: _RequiredUpdateChecker(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('New version available'), findsOneWidget);
+    expect(find.text('Update required'), findsNothing);
+    expect(find.text('Continue playing'), findsNothing);
+  });
 }
 
 class _RecordingBingoAnnouncer implements BingoAnnouncer {
@@ -152,6 +168,21 @@ class _AvailableUpdateChecker implements AppUpdateChecker {
       needsUpdate: true,
       isRequired: false,
       latestVersion: '1.1.0',
+      message: 'A newer version of Meditics BINGO is available.',
+    );
+  }
+}
+
+class _RequiredUpdateChecker implements AppUpdateChecker {
+  const _RequiredUpdateChecker();
+
+  @override
+  Future<AppUpdateStatus> checkForUpdate() async {
+    return const AppUpdateStatus(
+      needsUpdate: true,
+      isRequired: true,
+      latestVersion: '1.1.0',
+      updateUrl: 'https://example.com/update',
       message: 'A newer version of Meditics BINGO is available.',
     );
   }

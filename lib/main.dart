@@ -106,7 +106,9 @@ class _BingoScreenState extends State<BingoScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            updateStatus.isRequired ? 'Update required' : 'Update available',
+            updateStatus.isRequired
+                ? 'New version available'
+                : 'Update available',
           ),
           content: Text(
             [
