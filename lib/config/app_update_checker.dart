@@ -60,6 +60,8 @@ class AppConfig {
     required this.latestVersion,
     required this.minimumSupportedVersion,
     required this.updateRequired,
+    required this.androidUpdateUrl,
+    required this.iosUpdateUrl,
     required this.updateUrl,
     required this.message,
   });
@@ -74,6 +76,8 @@ class AppConfig {
           latestVersion ??
           '0.0.0',
       updateRequired: json['update_required'] as bool? ?? false,
+      androidUpdateUrl: json['android_update_url'] as String?,
+      iosUpdateUrl: json['ios_update_url'] as String?,
       updateUrl: json['update_url'] as String?,
       message:
           json['message'] as String? ??
@@ -84,8 +88,18 @@ class AppConfig {
   final String latestVersion;
   final String minimumSupportedVersion;
   final bool updateRequired;
+  final String? androidUpdateUrl;
+  final String? iosUpdateUrl;
   final String? updateUrl;
   final String message;
+
+  String? updateUrlForPlatform(TargetPlatform platform) {
+    return switch (platform) {
+      TargetPlatform.android => androidUpdateUrl ?? updateUrl,
+      TargetPlatform.iOS => iosUpdateUrl ?? updateUrl,
+      _ => updateUrl,
+    };
+  }
 }
 
 class AppUpdateStatus {
@@ -109,7 +123,9 @@ class AppUpdateStatus {
   factory AppUpdateStatus.fromVersions({
     required String installedVersion,
     required AppConfig config,
+    TargetPlatform? platform,
   }) {
+    final selectedPlatform = platform ?? defaultTargetPlatform;
     final isBelowMinimum = compareVersions(
       installedVersion,
       config.minimumSupportedVersion,
@@ -124,7 +140,7 @@ class AppUpdateStatus {
       needsUpdate: needsUpdate,
       isRequired: isBelowMinimum || (config.updateRequired && isBelowLatest),
       latestVersion: config.latestVersion,
-      updateUrl: config.updateUrl,
+      updateUrl: config.updateUrlForPlatform(selectedPlatform),
       message: config.message,
     );
   }

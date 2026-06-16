@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meditics_bingo/config/app_update_checker.dart';
 
@@ -15,6 +16,8 @@ void main() {
         latestVersion: '1.2.0',
         minimumSupportedVersion: '1.1.0',
         updateRequired: false,
+        androidUpdateUrl: null,
+        iosUpdateUrl: null,
         updateUrl: null,
         message: 'Please update.',
       ),
@@ -31,6 +34,8 @@ void main() {
         latestVersion: '1.1.0',
         minimumSupportedVersion: '1.0.0',
         updateRequired: false,
+        androidUpdateUrl: null,
+        iosUpdateUrl: null,
         updateUrl: null,
         message: 'Please update.',
       ),
@@ -38,5 +43,34 @@ void main() {
 
     expect(status.needsUpdate, isTrue);
     expect(status.isRequired, isFalse);
+  });
+
+  test('uses platform-specific update URLs when available', () {
+    const config = AppConfig(
+      latestVersion: '1.1.0',
+      minimumSupportedVersion: '1.0.0',
+      updateRequired: false,
+      androidUpdateUrl: 'https://play.google.com/store/apps/details?id=test',
+      iosUpdateUrl: 'https://apps.apple.com/app/test/id123',
+      updateUrl: 'https://example.com/fallback',
+      message: 'Please update.',
+    );
+
+    final androidStatus = AppUpdateStatus.fromVersions(
+      installedVersion: '1.0.0',
+      config: config,
+      platform: TargetPlatform.android,
+    );
+    final iosStatus = AppUpdateStatus.fromVersions(
+      installedVersion: '1.0.0',
+      config: config,
+      platform: TargetPlatform.iOS,
+    );
+
+    expect(
+      androidStatus.updateUrl,
+      'https://play.google.com/store/apps/details?id=test',
+    );
+    expect(iosStatus.updateUrl, 'https://apps.apple.com/app/test/id123');
   });
 }
