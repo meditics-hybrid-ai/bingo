@@ -43,9 +43,10 @@ class RemoteAppUpdateChecker implements AppUpdateChecker {
         installedVersion: installedVersion,
         config: config,
       );
-    } catch (error, stackTrace) {
-      debugPrint('App update check failed: $error');
-      debugPrintStack(stackTrace: stackTrace);
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('App update check skipped: $error');
+      }
       return AppUpdateStatus.upToDate();
     } finally {
       if (shouldCloseClient) {
