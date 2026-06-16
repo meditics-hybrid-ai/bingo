@@ -7,6 +7,8 @@ void main() {
     expect(compareVersions('1.0.0', '1.0.1'), isNegative);
     expect(compareVersions('1.0.10', '1.0.2'), isPositive);
     expect(compareVersions('1.2.0+4', '1.2.0'), isZero);
+    expect(compareVersions('1.0.0+1', 'v.1.0.1'), isNegative);
+    expect(compareVersions('1.0.0+1', 'v1.0.1'), isNegative);
   });
 
   test('requires update below minimum supported version', () {

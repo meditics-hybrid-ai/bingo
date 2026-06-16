@@ -1,6 +1,6 @@
 {
-  "latest_version": "v.1.0.1",
-  "minimum_supported_version": "v.1.0.1",
+  "latest_version": "1.0.1",
+  "minimum_supported_version": "1.0.1",
   "update_required": false,
   "android_update_url": "https://play.google.com/store/apps/details?id=com.meditics.meditics_bingo",
   "ios_update_url": "https://apps.apple.com/app/meditics-bingo/id0000000000",

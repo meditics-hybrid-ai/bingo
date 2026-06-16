@@ -174,7 +174,11 @@ int compareVersions(String current, String remote) {
 }
 
 List<int> _versionParts(String version) {
-  final versionName = version.split('+').first;
+  final versionName = version
+      .split('+')
+      .first
+      .trim()
+      .replaceFirst(RegExp(r'^[vV]\.?'), '');
 
   return versionName
       .split('.')
