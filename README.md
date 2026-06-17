@@ -39,7 +39,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Show win state when the player completes a valid pattern.
 - Ask for confirmation before refreshing a started or completed game.
 - Show Google AdMob test banner ads during development.
-- Keep the banner ad fixed in a constrained bottom strip.
+- Keep the banner ad fixed in a compact constrained bottom strip.
 - Preload and show a Google AdMob test interstitial after BINGO is achieved.
 - Hide the large logo after the game starts so gameplay gets more space.
 - Hide the pre-game call/status panel so the Start button is visible sooner.
@@ -148,7 +148,7 @@ Before release:
 
 - Integrate Google AdMob mobile ads SDK. Done.
 - Choose ad placements that do not interrupt active gameplay. Done.
-- Keep the banner ad fixed in a constrained bottom strip. Done.
+- Keep the banner ad fixed in a compact constrained bottom strip. Done.
 - Automatically select test ads for non-release builds and production placeholders for release builds. Done.
 - Add test ads during development. Done.
 - Add production ad unit IDs through environment or build configuration.

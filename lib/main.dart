@@ -397,7 +397,8 @@ class _BingoScreenState extends State<BingoScreen> {
 class _BottomAdBar extends StatelessWidget {
   const _BottomAdBar({required this.adsService});
 
-  static const double _height = 74;
+  static const double _height = 66;
+  static const double _maxBottomInset = 12;
 
   final AdsService adsService;
 
@@ -406,6 +407,10 @@ class _BottomAdBar extends StatelessWidget {
     if (!adsService.isEnabled) {
       return const SizedBox.shrink();
     }
+
+    final bottomInset = MediaQuery.paddingOf(
+      context,
+    ).bottom.clamp(0, _maxBottomInset).toDouble();
 
     return DecoratedBox(
       decoration: const BoxDecoration(
@@ -416,12 +421,12 @@ class _BottomAdBar extends StatelessWidget {
         ),
         border: Border(top: BorderSide(color: Color(0xFFFFC400), width: 2)),
       ),
-      child: SafeArea(
-        top: false,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomInset),
         child: SizedBox(
           height: _height,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+            padding: const EdgeInsets.fromLTRB(8, 3, 8, 3),
             child: Center(child: _AdBanner(adsService: adsService)),
           ),
         ),
