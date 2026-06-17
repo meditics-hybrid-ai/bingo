@@ -1010,72 +1010,75 @@ class _DrawHistory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: const Color(0xEFFFFFFF),
-            border: Border.all(color: const Color(0xFFFFC400), width: 2),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x44000000),
-                blurRadius: 12,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent draws',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: const Color(0xFF0B1D66),
-                    fontWeight: FontWeight.w900,
-                  ),
+        SizedBox(
+          width: double.infinity,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xEFFFFFFF),
+              border: Border.all(color: const Color(0xFFFFC400), width: 2),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x44000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 5),
                 ),
-                const SizedBox(height: 8),
-                if (latestNumbers.isEmpty)
-                  const Text(
-                    'No numbers drawn yet.',
-                    style: TextStyle(
-                      color: Color(0xFF26335F),
-                      fontWeight: FontWeight.w700,
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Recent draws',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: const Color(0xFF0B1D66),
+                      fontWeight: FontWeight.w900,
                     ),
-                  )
-                else
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: latestNumbers.map((number) {
-                      final color =
-                          _bingoColumnColors[_columnIndexForNumber(number)];
-                      return DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [color.withValues(alpha: 0.85), color],
+                  ),
+                  const SizedBox(height: 8),
+                  if (latestNumbers.isEmpty)
+                    const Text(
+                      'No numbers drawn yet.',
+                      style: TextStyle(
+                        color: Color(0xFF26335F),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    )
+                  else
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: latestNumbers.map((number) {
+                        final color =
+                            _bingoColumnColors[_columnIndexForNumber(number)];
+                        return DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [color.withValues(alpha: 0.85), color],
+                            ),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          child: Text(
-                            _formatBingoNumber(number),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            child: Text(
+                              _formatBingoNumber(number),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-              ],
+                        );
+                      }).toList(),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
