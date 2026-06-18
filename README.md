@@ -33,6 +33,7 @@ Meditics BINGO is a simple single-player bingo game built with Flutter and Dart.
 - Display the Meditics BINGO logo in the app UI.
 - Use a vibrant arcade-style visual design inspired by the app logo.
 - Use generated Meditics BINGO launcher icons for Android and iOS.
+- Use Android adaptive launcher icons with a logo-matched background to avoid white padding.
 - Use logo-matched Android and iOS splash screens with larger centered logos.
 - Require the player to manually tap matching numbers on the bingo card.
 - Prevent marking numbers that have not been drawn yet.
@@ -111,6 +112,7 @@ Before release:
 - Confirm Android and iOS platform targets.
 - Set app name, bundle identifier, package name, launcher icon, and splash screen.
 - Add Meditics BINGO logo asset and generated Android/iOS launcher icons. Done.
+- Add Android adaptive launcher icon foreground/background assets. Done.
 - Add Android splash screen branding with dark logo-matched background and larger logo. Done.
 - Add iOS splash screen branding with matching dark background and larger logo. Done.
 - Establish code organization for game logic, UI, state, services, and shared widgets.
